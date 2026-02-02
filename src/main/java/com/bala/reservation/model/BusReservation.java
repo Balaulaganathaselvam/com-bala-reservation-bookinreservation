@@ -1,9 +1,6 @@
 package com.bala.reservation.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 public class BusReservation extends AbstractIdentity {
-
+   @Column(name ="CHECKED_IN")
     private boolean  checkIn;
     private int numberOfBags;
     @OneToOne
