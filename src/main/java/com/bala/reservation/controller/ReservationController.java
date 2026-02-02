@@ -21,14 +21,21 @@ import java.util.List;
 @RestController
 public class ReservationController {
 
-    @Autowired
-    private BusRepository busRepository;
+    private final BusRepository busRepository;
+
+    private final PassengerRepository passengerRepository;
+
+    private final BusReservationRepo busReservationRepo;
 
     @Autowired
-    private PassengerRepository passengerRepository;
+    public ReservationController(BusRepository busRepository,
+                                 PassengerRepository passengerRepository,
+                                 BusReservationRepo busReservationRepo) {
+        this.busRepository = busRepository;
+        this.passengerRepository = passengerRepository;
+        this.busReservationRepo = busReservationRepo;
+    }
 
-    @Autowired
-    private BusReservationRepo busReservationRepo;
     @GetMapping("/findBus")
     public List<BusEntity> getBuses(@RequestParam("from")  String from, @RequestParam("to") String to,
                                     @RequestParam("departureDate")
@@ -40,7 +47,8 @@ public class ReservationController {
     @PostMapping("/createReservation")
     @Transactional
     public BusReservation saveReservation(@RequestBody ReservationRequest reservationRequest) {
-        BusEntity busEntity =busRepository.findById(reservationRequest.getBusId()).get();
+        BusEntity busEntity = busRepository.findById(reservationRequest.getBusId())
+                .orElseThrow(() -> new IllegalArgumentException("Bus not found with id: " + reservationRequest.getBusId()));
         Passenger passenger = new Passenger();
         passenger.setFirstName(reservationRequest.getFirstName());
         passenger.setLastName(reservationRequest.getLastName());
@@ -57,12 +65,14 @@ public class ReservationController {
 
     @GetMapping("/findReservation/{id}")
     public BusReservation findReservation(@PathVariable int id) {
-        return busReservationRepo.findById(id).get();
+        return busReservationRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + id));
     }
 
     @PutMapping("/updateReservation")
     public BusReservation updateReservation(@RequestBody UpdateReservationRequest reservationRequest) {
-        BusReservation busReservation =busReservationRepo.findById(reservationRequest.getId()).get();
+        BusReservation busReservation = busReservationRepo.findById(reservationRequest.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + reservationRequest.getId()));
         busReservation.setNumberOfBags(reservationRequest.getNumberOfBags());
         busReservation.setCheckIn(reservationRequest.isCheckIn());
         return busReservationRepo.save(busReservation);
