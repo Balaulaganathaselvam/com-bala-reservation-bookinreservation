@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
