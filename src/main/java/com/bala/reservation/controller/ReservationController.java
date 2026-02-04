@@ -9,6 +9,7 @@ import com.bala.reservation.repository.BusRepository;
 import com.bala.reservation.repository.BusReservationRepo;
 import com.bala.reservation.repository.PassengerRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@RequestMapping("/busServices")
+@CrossOrigin(origins = "http://localhost:4200")
+@Slf4j
 public class ReservationController {
 
     private final BusRepository busRepository;
@@ -36,15 +40,15 @@ public class ReservationController {
         this.busReservationRepo = busReservationRepo;
     }
 
-    @GetMapping("/findBus")
+    @GetMapping("/buses")
     public List<BusEntity> getBuses(@RequestParam("from")  String from, @RequestParam("to") String to,
-                                    @RequestParam("departureDate")
+                                    @RequestParam("dateOfDeparture")
                                     @DateTimeFormat(pattern ="yyyy-MM-dd") LocalDate departureDate) {
-
+      log.info("Inside getBuses method of ReservationController{},{},{}",from,to,departureDate);
         return busRepository.findBus(from,to, Date.valueOf(departureDate));
     }
 
-    @PostMapping("/createReservation")
+    @PostMapping("/reservations")
     @Transactional
     public BusReservation saveReservation(@RequestBody ReservationRequest reservationRequest) {
         BusEntity busEntity = busRepository.findById(reservationRequest.getBusId())
@@ -63,13 +67,13 @@ public class ReservationController {
         return busReservationRepo.save(busReservation);
     }
 
-    @GetMapping("/findReservation/{id}")
+    @GetMapping("/reservations/{id}")
     public BusReservation findReservation(@PathVariable int id) {
         return busReservationRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + id));
     }
 
-    @PutMapping("/updateReservation")
+    @PutMapping("/reservations")
     public BusReservation updateReservation(@RequestBody UpdateReservationRequest reservationRequest) {
         BusReservation busReservation = busReservationRepo.findById(reservationRequest.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + reservationRequest.getId()));
